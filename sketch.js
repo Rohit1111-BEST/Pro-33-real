@@ -1,128 +1,138 @@
-var Engine = Matter.Engine,
-  World = Matter.World,
-  Events = Matter.Events,
-  Bodies = Matter.Bodies;
-  var score=0;
-  var particle;
-  var turn=0;
-  var gameState = "play";
 
-var particles = [];
-var plinkos = [];
+const Engine = Matter.Engine;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
+const Constraint = Matter.Constraint;
+
+var engine, world;
+
+var plinko = [];
 var divisions = [];
 
-var divisionHeight=300;
-var score =0;
+var divisionHeight = 300;
+
+
+var ground;
+//Create a variable score and initialize the score to 0.
+
+//Because there will always be one particle while calculating the score
+//, we need to create a particle variable (not an array).
+
+//Create a variable turn and initialize the turn to 0.
+
+//Create a gamestate as start or play.
+
+count = 0;
 function setup() {
-  createCanvas(800, 800);
+  var canvas = createCanvas(480, 800);
   engine = Engine.create();
   world = engine.world;
-  //ground = new Ground(width/2,height,width,20);
 
+  ground = new Ground(230, 795, 500, 10);
 
-   for (var k = 0; k <=width; k = k + 80) {
-    divisions.push(new Divisions(k, height-divisionHeight/2, 10,  divisionHeight ));
-   }
+  for (var k = 0; k <= width; k = k + 80) {
+    divisions.push(new Divisions(k, height - divisionHeight / 2, 10, divisionHeight));
+  }
+  for (var j = 15; j <= width; j = j + 50) {
+    plinko.push(new Plinko(j, 75, 10));
+  }
 
+  for (var j = 15; j <= width - 10; j = j + 50) {
+    plinko.push(new Plinko(j, 275, 10));
+  }
 
-    for (var j = 75; j <=width; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,75));
-    }
+  for (var j = 30; j <= width - 10; j = j + 50) {
+    plinko.push(new Plinko(j, 175, 10));
+  }
 
-    for (var j = 50; j <=width-10; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,175));
-    }
-
-     for (var j = 75; j <=width; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,275));
-    }
-
-     for (var j = 50; j <=width-10; j=j+50) 
-    {
-    
-       plinkos.push(new Plinko(j,375));
-    }
-
-    text("500",400,200)
-
-    
 }
- 
 
 
 function draw() {
-  background("black");
-  textSize(20)
- text("Score : "+score,20,30);
- text("500",20,550)
- text("500",100,550)
- text("500",180,550)
- text("500",260,550)
- text("100",340,550)
- text("100",420,550)
- text("100",500,550)
- text("200",580,550)
- text("200",660,550)
- text("200",740,550)
-  Engine.update(engine);
- 
-
+  background(0);
   
-   for (var i = 0; i < plinkos.length; i++) {
-     
-     plinkos[i].display();
-     
-   }
-   if(frameCount%60===0){
-     particles.push(new Particle(random(width/2-30, width/2+30), 10,10));
-     score++;
-   }
- 
-  for (var j = 0; j < particles.length; j++) {
-   
-     particles[j].display();
-   }
-   for (var k = 0; k < divisions.length; k++) {
-     
-     divisions[k].display();
-   }
-}
+  stroke("blue")
+  strokeWeight(5)
+  textSize(30)
+  //Display the score at a desired position using text.
+  
+  //Specify the points in between the divisions using text. One example is given below:-
+  text("500", 10, 550)
 
-function mousePressed(){
-if(particle!=null) { 
-  particle.display(); 
-  if (particle.body.position.y>760) { 
-    if (particle.body.position.x < 300) { 
-      score=score+500; 
-      particle=null; 
-      if ( count>= 5) gameState ="end"; }
-       else if (particle.body.position.x < 600 && particle.body.position.x > 301 ) {
-          score = score + 100; particle=null;
-           if ( count>= 5) gameState ="end"; } 
-           else if (particle.body.position.x < 900 && particle.body.position.x > 601 ){
-              score = score + 200;
-               particle=null;
-                if ( count>= 5) gameState ="end"; } } 
-              }
-}
 
-function score(){
-  if(particle.x.position<300){
-score=500;
+  Engine.update(engine);
+  ground.display();
+
+  if (gameState === 0) {
+
+    textSize(100);
+    text("GameOver", 150, 250);
+
   }
 
-  if(particle.x.position>301 && particle.x.position<600){
-    score=100;
+  for (var b = 0; b < plinko.length; b++) {
+    plinko[b].display();
+  }
+
+  if(particle!=null)
+  {
+     particle.display();
+      
+      if (particle.body.position.y>760)
+      {
+            if (particle.body.position.x < 300) 
+            {
+                //The score should get updated with the number of points specified in the division where the ball falls.   //
+              //if the particle's x position is less than 300 then the score is 500 points.
+
+                particle=null;
+                if ( turn>= 5){
+                  gameState =0;
+                }                           
+            }
+
+
+            else if (particle.body.position.x < 600 && particle.body.position.x > 301 ) 
+            {
+                  //The score should get updated with the number of points specified in the division where the ball falls.
+                  //f the particle's x position is more than 301 and less than 600 then the score is 100 points.
+                  particle=null;
+                  if ( turn>= 5){
+                    gameState =0;
+                  }  
+
+            }
+            else if (particle.body.position.x < 900 && particle.body.position.x > 601 )
+            {
+                  //The score should get updated with the number of points specified in the division where the ball falls.
+                  //If the particle's x position is more than 601 and less than 900 then the score is 200 points.
+                  particle=null;
+                  if ( turn>= 5){
+                    gameState =0;
+                  }  
+
+            }      
+            
       }
 
+    }
+  for (var a = 0; a < divisions.length; a++) {
+    divisions[a].display();
+  }
 
-      if(particle.x.position>601 && particle.x.position<900){
-        score=100;
-          } 
+  //mousePressed();
+}
+
+function mousePressed()
+{
+  //Use a mousePressed() function to create a new particle 
+  //and assign it to the “particle” ` variable.
+  //Hint is given in Project PDF point #7
+  //For every turn played, increase the turn variable by 1.
+  /*
+  If the player has played 5 times:
+The game is over.
+gameState is END.
+Show that the game has ended.
+  */
 }
